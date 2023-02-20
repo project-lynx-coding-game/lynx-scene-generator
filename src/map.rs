@@ -1,17 +1,19 @@
-#[derive(Clone, Copy, Debug)]
+use serde::Serialize;
+
+#[derive(Clone, Copy, Debug, Serialize)]
 pub enum Tile {
     Grass,
     Dirt,
     Sand
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize)]
 pub enum Object {
     Tree,
     None
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Map {
     width: u32,
     height: u32,
@@ -22,15 +24,12 @@ pub struct Map {
 impl Map {
     pub fn new(width: u32, height: u32) -> Self {
         let mut floor = Vec::new();
-        for _ in 0..height {
-            let row = vec![Tile::Grass; width as usize];
-            floor.push(row);
-        }
-
         let mut objects = Vec::new();
         for _ in 0..height {
-            let row = vec![Object::None; width as usize];
-            objects.push(row);
+            let floor_row = vec![Tile::Grass; width as usize];
+            let object_row = vec![Object::None; width as usize];
+            floor.push(floor_row);
+            objects.push(object_row);
         }
 
         Map {

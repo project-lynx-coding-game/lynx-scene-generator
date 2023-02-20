@@ -3,38 +3,49 @@ mod map;
 
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
-use rand;
-
+use serde::{Deserialize, Serialize};
+use clap::Parser;
+use actix_web::{web, App, HttpServer, Responder};
+use actix_cors::Cors;
 
 use generator::Generator;
 use map::Map;
 
-use clap::{arg, Command, Arg};
+#[derive(Debug, Serialize, Deserialize)]
+struct GenerationRequest {
+    seed: String,
+    width: u32,
+    height: u32
+}
 
-fn main() {
-    let matches = Command::new("Lynx Scene Generator")
-        .version("1.0")
-        .author("Lynx Developers")
-        .about("Generates the map")
-        .arg(Arg::new("width"))
-        .arg(Arg::new("height"))
-        .arg(arg!(--seed <VALUE>).required(false))
-        .get_matches();
+async fn get_scene(item: web::Json<GenerationRequest>) -> impl Responder {
+    let mut hasher = DefaultHasher::new();
+    item.seed.hash(&mut hasher);
+    let gen = Generator::new(hasher.finish());
+    let map = Map::new(item.width, item.height);
+    gen.generate(&map);
+    web::Json(map)
+}
 
-    let width = matches.get_one::<String>("width").expect("Width not specified.");
-    let height = matches.get_one::<String>("height").expect("Height not specified.");
+/// Lynx map generator
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Port number
+   port: u16
+}
 
-    let generator = match matches.get_one::<String>("seed") {
-        Some(seed) => {
-            let mut hasher = DefaultHasher::new();
-            seed.hash(&mut hasher);
-            Generator::new(hasher.finish())
-        },
-        None => {
-            Generator::new(rand::random::<u64>())
-        }
-    };
-    let map = Map::new(width.parse::<u32>().unwrap(), height.parse::<u32>().unwrap());
-    generator.generate(&map);
-    println!("{:?}", map); // TODO add outputting it in a proper format
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let args = Args::parse();
+
+    HttpServer::new(|| {
+        let cors = Cors::permissive();
+        App::new()
+            .wrap(cors)
+            .service(web::resource("/get_scene").route(web::get().to(get_scene)))
+    })
+    .bind(("127.0.0.1", args.port))?
+    .run()
+    .await
 }
