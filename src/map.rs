@@ -8,7 +8,7 @@ pub enum Tile {
     Sand
 }
 
-#[derive(Clone, Copy, Debug, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize, PartialEq)]
 pub enum Object {
     Tree,
     None
