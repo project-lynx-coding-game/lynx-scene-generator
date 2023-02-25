@@ -21,14 +21,8 @@ The structure of GET request is as follows:
 }
 ```
 
-## Example maps
-Ground and trees rendered separately:
+## Example map
 
-![map](https://i.imgur.com/asvewVI.png)
-![map](https://i.imgur.com/NVpAh4C.png)
-
-And together:
-
-![map](https://i.imgur.com/tG9xS0Q.png)
+![map](https://i.imgur.com/8PCqOY5.png)
 
 
