@@ -1,6 +1,9 @@
 mod generator;
 mod map;
 
+#[cfg(feature = "rendering-images")]
+mod render;
+
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use serde::{Deserialize, Serialize};
@@ -10,6 +13,9 @@ use actix_cors::Cors;
 
 use generator::Generator;
 use map::Map;
+
+#[cfg(feature = "rendering-images")]
+use render::render_image;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GenerationRequest {
@@ -24,6 +30,10 @@ async fn get_scene(item: web::Json<GenerationRequest>) -> impl Responder {
     let gen = Generator::new(hasher.finish());
     let map = Map::new(item.width, item.height);
     gen.generate(&map);
+
+    #[cfg(feature = "rendering-images")]
+    render_image(&map, &item.seed);
+
     web::Json(map)
 }
 

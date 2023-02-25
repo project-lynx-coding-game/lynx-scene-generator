@@ -7,7 +7,7 @@ pub struct Generator {
 
 impl Generator {
     pub fn new(seed: u64) -> Self {
-        Generator { seed}
+        Generator { seed }
     }
 
     pub fn generate(&self, map: &Map) {

@@ -15,8 +15,8 @@ pub enum Object {
 
 #[derive(Debug, Serialize)]
 pub struct Map {
-    width: u32,
-    height: u32,
+    pub width: u32,
+    pub height: u32,
     floor: Vec<Vec<Tile>>,
     objects: Vec<Vec<Object>>
 }
@@ -38,5 +38,13 @@ impl Map {
             floor,
             objects
         }
+    }
+
+    pub fn get_tile(&self, x: u32, y: u32) -> Tile {
+        self.floor[y as usize][x as usize]
+    }
+
+    pub fn get_object(&self, x: u32, y: u32) -> Object {
+        self.objects[y as usize][x as usize]
     }
 }
