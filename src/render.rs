@@ -1,4 +1,3 @@
-#[cfg(feature = "rendering-images")]
 use image::{ImageBuffer, Rgb};
 use std::fs;
 
