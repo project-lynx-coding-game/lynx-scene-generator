@@ -28,8 +28,8 @@ async fn get_scene(item: web::Json<GenerationRequest>) -> impl Responder {
     let mut hasher = DefaultHasher::new();
     item.seed.hash(&mut hasher);
     let gen = Generator::new(hasher.finish());
-    let map = Map::new(item.width, item.height);
-    gen.generate(&map);
+    let mut map = Map::new(item.width, item.height);
+    gen.generate(&mut map);
 
     #[cfg(feature = "rendering-images")]
     render_image(&map, &item.seed);

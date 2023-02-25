@@ -1,6 +1,7 @@
 use serde::Serialize;
+use rand_derive2::RandGen;
 
-#[derive(Clone, Copy, Debug, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize, RandGen)]
 pub enum Tile {
     Grass,
     Dirt,
@@ -42,6 +43,10 @@ impl Map {
 
     pub fn get_tile(&self, x: u32, y: u32) -> Tile {
         self.floor[y as usize][x as usize]
+    }
+
+    pub fn set_tile(&mut self, x: u32, y: u32, tile: Tile) {
+        self.floor[y as usize][x as usize] = tile;
     }
 
     pub fn get_object(&self, x: u32, y: u32) -> Object {
