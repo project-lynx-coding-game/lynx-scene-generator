@@ -1,5 +1,5 @@
 use crate::Map;
-use crate::map::Tile;
+use crate::map::{Tile, Object};
 
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -34,11 +34,86 @@ impl Generator {
 
 
     pub fn generate(&self, map: &mut Map) {
+        // Generation method inspired by https://www.procjam.com/tutorials/en/ooze/
+        // The approach is to generate randomly placed blobs that grow
+        // Based on lazy flood fill algorithm https://youtu.be/YS0MTrjxGbM
         self.generate_floor(map);
         self.generate_objects(map);
     }
 
-    fn generate_objects(&self, map: &mut Map) {}
+    fn generate_objects(&self, map: &mut Map) {
+        //TODO ideally add generic flood fill generation
+        // tried and its a lot of work, so not sure if worth it
+        const DECAY_FACTOR: f32 = 0.5;
+
+        let mut grass_biome = Vec::new();
+        for y in 0..map.height {
+            for x in 0..map.width {
+                if map.get_tile(x, y) == Tile::Grass {
+                    grass_biome.push(Point::new(x, y));
+                }
+            }
+        }
+
+        let blob_count: u32 = grass_biome.len() as u32 / 10;
+        let mut rng = ChaCha8Rng::seed_from_u64(self.seed);
+
+        for _ in 0..blob_count {
+            let blob_type: Tile = rng.gen();
+            let initial_position = &grass_biome[rng.gen_range(0..grass_biome.len())];
+            let mut queue = vec![initial_position.clone()];
+            let mut visited = vec![initial_position.clone()];
+
+            let mut chance: f32 = 100.0;
+
+            // loop for growing
+            loop {
+                if queue.len() == 0 {
+                    break;
+                }
+
+                //pick random from queue
+                let index = rng.gen_range(0..queue.len());
+                let point = queue[index].clone();
+                queue.remove(index);
+
+                map.set_object(point.x % map.width, point.y % map.height, Object::Tree);
+
+                // chance for neighbours
+                if (rng.gen_range(0..=100) as f32) > chance {
+                    continue;
+                }
+
+                //get neighbours
+                let mut neighbours = Vec::new();
+
+                if grass_biome.contains(&Point::new(point.x + 1, point.y)) {
+                    neighbours.push(Point::new(point.x + 1, point.y));
+                }
+                if grass_biome.contains(&Point::new(point.x, point.y + 1)) {
+                    neighbours.push(Point::new(point.x, point.y + 1));
+                }
+
+                if point.x > 0 && grass_biome.contains(&Point::new(point.x - 1, point.y)) {
+                    neighbours.push(Point::new(point.x - 1, point.y));
+                }
+                if point.y > 0 && grass_biome.contains(&Point::new(point.x, point.y - 1)){
+                    neighbours.push(Point::new(point.x, point.y - 1));
+                }
+
+                for neighbour in neighbours.iter() {
+                    if visited.contains(neighbour) {
+                        continue;
+                    }
+
+                    visited.push(neighbour.clone());
+                    queue.push(neighbour.clone());
+                }
+
+                chance *= DECAY_FACTOR;
+            }
+        }
+    }
 
     fn generate_floor(&self, map: &mut Map) {
         // Generation method inspired by https://www.procjam.com/tutorials/en/ooze/
