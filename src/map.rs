@@ -83,11 +83,11 @@ impl fmt::Display for Map {
         write!(f, "{{\n")?;
         for y in 0..self.height {
             for x in 0..self.width {
-                write!(f, "{{\"id\":{}, \"name\":{}, \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
+                write!(f, "{{\"id\":{}, \"name\":\"{}\", \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
                         id, self.floor[y as usize][x as usize], x, y)?;
                 id += 1;
                 if let Some(obj) = self.get_object(x, y) {
-                    write!(f, "{{\"id\":{}, \"name\":{}, \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
+                    write!(f, "{{\"id\":{}, \"name\":\"{}\", \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
                         id, obj, x, y)?;
                     id += 1;
                 }
