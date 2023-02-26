@@ -8,7 +8,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use serde::{Deserialize, Serialize};
 use clap::Parser;
-use actix_web::{web, App, HttpServer, Responder};
+use actix_web::{web, App, HttpServer, HttpResponse};
 use actix_cors::Cors;
 
 use generator::Generator;
@@ -24,7 +24,7 @@ struct GenerationRequest {
     height: u32
 }
 
-async fn get_scene(item: web::Json<GenerationRequest>) -> impl Responder {
+async fn get_scene(item: web::Json<GenerationRequest>) -> HttpResponse {
     let mut hasher = DefaultHasher::new();
     item.seed.hash(&mut hasher);
     let gen = Generator::new(hasher.finish());
@@ -34,7 +34,7 @@ async fn get_scene(item: web::Json<GenerationRequest>) -> impl Responder {
     #[cfg(feature = "rendering-images")]
     render_image(&map, &item.seed);
 
-    web::Json(map)
+    HttpResponse::Ok().body(map.to_string())
 }
 
 /// Lynx map generator

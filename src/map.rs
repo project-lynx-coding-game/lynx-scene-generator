@@ -1,5 +1,6 @@
 use serde::Serialize;
 use rand_derive2::RandGen;
+use std::fmt;
 
 #[derive(Clone, Copy, Debug, Serialize, RandGen, PartialEq)]
 pub enum Tile {
@@ -8,13 +9,25 @@ pub enum Tile {
     Sand
 }
 
+impl fmt::Display for Tile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 #[derive(Clone, Copy, Debug, Serialize, PartialEq)]
 pub enum Object {
     Tree,
     None
 }
 
-#[derive(Debug, Serialize)]
+impl fmt::Display for Object {
+    fn fmt(&self, f: &mut fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+#[derive(Debug)]
 pub struct Map {
     pub width: u32,
     pub height: u32,
@@ -53,7 +66,7 @@ impl Map {
     }
 
     pub fn get_object(&self, x: u32, y: u32) -> Option<Object> {
-        if x >= self.width || y >= self.height {
+        if x >= self.width || y >= self.height || self.objects[y as usize][x as usize] == Object::None {
             return None;
         }
         Some(self.objects[y as usize][x as usize])
@@ -61,5 +74,26 @@ impl Map {
 
     pub fn set_object(&mut self, x: u32, y: u32, obj: Object) {
         self.objects[y as usize][x as usize] = obj;
+    }
+}
+
+impl fmt::Display for Map {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut id = 0;
+        write!(f, "{{\n")?;
+        for y in 0..self.height {
+            for x in 0..self.width {
+                write!(f, "{{\"id\":{}, \"name\":{}, \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
+                        id, self.floor[y as usize][x as usize], x, y)?;
+                id += 1;
+                if let Some(obj) = self.get_object(x, y) {
+                    write!(f, "{{\"id\":{}, \"name\":{}, \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
+                        id, obj, x, y)?;
+                    id += 1;
+                }
+            }
+        }
+        write!(f, "}}")?;
+        Ok(())
     }
 }

@@ -37,6 +37,8 @@ impl Generator {
         // Generation method inspired by https://www.procjam.com/tutorials/en/ooze/
         // The approach is to generate randomly placed blobs that grow
         // Based on lazy flood fill algorithm https://youtu.be/YS0MTrjxGbM
+
+        //TODO refactor common parts
         self.generate_floor(map);
         self.generate_trees(map);
     }
