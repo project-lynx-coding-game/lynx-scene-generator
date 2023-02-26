@@ -41,16 +41,22 @@ impl Map {
         }
     }
 
-    pub fn get_tile(&self, x: u32, y: u32) -> Tile {
-        self.floor[y as usize][x as usize]
+    pub fn get_tile(&self, x: u32, y: u32) -> Option<Tile> {
+        if x >= self.width || y >= self.height {
+            return None;
+        }
+        Some(self.floor[y as usize][x as usize])
     }
 
     pub fn set_tile(&mut self, x: u32, y: u32, tile: Tile) {
         self.floor[y as usize][x as usize] = tile;
     }
 
-    pub fn get_object(&self, x: u32, y: u32) -> Object {
-        self.objects[y as usize][x as usize]
+    pub fn get_object(&self, x: u32, y: u32) -> Option<Object> {
+        if x >= self.width || y >= self.height {
+            return None;
+        }
+        Some(self.objects[y as usize][x as usize])
     }
 
     pub fn set_object(&mut self, x: u32, y: u32, obj: Object) {

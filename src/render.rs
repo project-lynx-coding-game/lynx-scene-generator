@@ -9,15 +9,16 @@ pub fn render_image(map: &Map, seed: &str) {
     let mut imgbuf = ImageBuffer::new(map.width, map.height);
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
         *pixel = match map.get_tile(x, y) {
-            Tile::Grass => {
-                if map.get_object(x, y) == Object::Tree {
+            Some(Tile::Grass) => {
+                if map.get_object(x, y).unwrap() == Object::Tree {
                     Rgb([75 as u8, 162, 69])
                 } else {
                     Rgb([148 as u8, 204, 71])
                 }
             },
-            Tile::Dirt => Rgb([94, 66, 60]),
-            Tile::Sand => Rgb([231, 212, 148])
+            Some(Tile::Dirt) => Rgb([94, 66, 60]),
+            Some(Tile::Sand) => Rgb([231, 212, 148]),
+            None => Rgb([0, 0, 0])
         };
     }
 

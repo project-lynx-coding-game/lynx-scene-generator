@@ -38,10 +38,10 @@ impl Generator {
         // The approach is to generate randomly placed blobs that grow
         // Based on lazy flood fill algorithm https://youtu.be/YS0MTrjxGbM
         self.generate_floor(map);
-        self.generate_objects(map);
+        self.generate_trees(map);
     }
 
-    fn generate_objects(&self, map: &mut Map) {
+    fn generate_trees(&self, map: &mut Map) {
         //TODO ideally add generic flood fill generation
         // tried and its a lot of work, so not sure if worth it
         const DECAY_FACTOR: f32 = 0.5;
@@ -49,7 +49,7 @@ impl Generator {
         let mut grass_biome = Vec::new();
         for y in 0..map.height {
             for x in 0..map.width {
-                if map.get_tile(x, y) == Tile::Grass {
+                if map.get_tile(x, y).unwrap() == Tile::Grass {
                     grass_biome.push(Point::new(x, y));
                 }
             }
@@ -59,7 +59,6 @@ impl Generator {
         let mut rng = ChaCha8Rng::seed_from_u64(self.seed);
 
         for _ in 0..blob_count {
-            let blob_type: Tile = rng.gen();
             let initial_position = &grass_biome[rng.gen_range(0..grass_biome.len())];
             let mut queue = vec![initial_position.clone()];
             let mut visited = vec![initial_position.clone()];
@@ -87,18 +86,21 @@ impl Generator {
                 //get neighbours
                 let mut neighbours = Vec::new();
 
-                if grass_biome.contains(&Point::new(point.x + 1, point.y)) {
+                if let Some(Tile::Grass) = map.get_tile(point.x + 1, point.y) {
                     neighbours.push(Point::new(point.x + 1, point.y));
                 }
-                if grass_biome.contains(&Point::new(point.x, point.y + 1)) {
+                if point.x > 0 {
+                    if let Some(Tile::Grass) = map.get_tile(point.x - 1, point.y) {
+                        neighbours.push(Point::new(point.x - 1, point.y));
+                    }
+                }
+                if let Some(Tile::Grass) = map.get_tile(point.x, point.y + 1) {
                     neighbours.push(Point::new(point.x, point.y + 1));
                 }
-
-                if point.x > 0 && grass_biome.contains(&Point::new(point.x - 1, point.y)) {
-                    neighbours.push(Point::new(point.x - 1, point.y));
-                }
-                if point.y > 0 && grass_biome.contains(&Point::new(point.x, point.y - 1)){
-                    neighbours.push(Point::new(point.x, point.y - 1));
+                if point.y > 0 {
+                    if let Some(Tile::Grass) = map.get_tile(point.x, point.y - 1) {
+                        neighbours.push(Point::new(point.x, point.y - 1));
+                    }
                 }
 
                 for neighbour in neighbours.iter() {
@@ -116,10 +118,6 @@ impl Generator {
     }
 
     fn generate_floor(&self, map: &mut Map) {
-        // Generation method inspired by https://www.procjam.com/tutorials/en/ooze/
-        // The approach is to generate randomly placed blobs that grow
-        // Based on lazy flood fill algorithm https://youtu.be/YS0MTrjxGbM
-
         const DECAY_FACTOR: f32 = 0.99;
 
         let blob_count: u32 = map.width + map.height;
