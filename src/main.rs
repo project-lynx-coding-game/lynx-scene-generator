@@ -55,7 +55,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .service(web::resource("/get_scene").route(web::post().to(get_scene)))
     })
-    .bind(("127.0.0.1", args.port))?
+    .bind(("0.0.0.0", args.port))?
     .run()
     .await
 }
