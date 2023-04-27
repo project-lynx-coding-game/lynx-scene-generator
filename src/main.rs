@@ -53,7 +53,7 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::permissive();
         App::new()
             .wrap(cors)
-            .service(web::resource("/get_scene").route(web::get().to(get_scene)))
+            .service(web::resource("/get_scene").route(web::post().to(get_scene)))
     })
     .bind(("127.0.0.1", args.port))?
     .run()

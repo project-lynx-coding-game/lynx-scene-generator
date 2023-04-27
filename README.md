@@ -12,7 +12,7 @@ You can also run with generating images feature enabled. It will generate locall
 cargo run --features rendering-images -- 8080
 ```
 
-The structure of GET request is as follows:
+The structure of POST `/get_scene` request is as follows:
 ```json
 {
 	"seed" : "test",
