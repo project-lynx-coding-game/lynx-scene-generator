@@ -1,12 +1,12 @@
-use serde::Serialize;
 use rand_derive2::RandGen;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Serialize, RandGen, PartialEq)]
 pub enum Tile {
     Grass,
     Dirt,
-    Sand
+    Sand,
 }
 
 impl fmt::Display for Tile {
@@ -18,7 +18,7 @@ impl fmt::Display for Tile {
 #[derive(Clone, Copy, Debug, Serialize, PartialEq)]
 pub enum Object {
     Tree,
-    None
+    None,
 }
 
 impl fmt::Display for Object {
@@ -32,7 +32,7 @@ pub struct Map {
     pub width: u32,
     pub height: u32,
     floor: Vec<Vec<Tile>>,
-    objects: Vec<Vec<Object>>
+    objects: Vec<Vec<Object>>,
 }
 
 impl Map {
@@ -50,7 +50,7 @@ impl Map {
             width,
             height,
             floor,
-            objects
+            objects,
         }
     }
 
@@ -66,7 +66,10 @@ impl Map {
     }
 
     pub fn get_object(&self, x: u32, y: u32) -> Option<Object> {
-        if x >= self.width || y >= self.height || self.objects[y as usize][x as usize] == Object::None {
+        if x >= self.width
+            || y >= self.height
+            || self.objects[y as usize][x as usize] == Object::None
+        {
             return None;
         }
         Some(self.objects[y as usize][x as usize])
@@ -77,23 +80,85 @@ impl Map {
     }
 }
 
+#[derive(Clone, Debug, Serialize)]
+struct Vector {
+    x: i32,
+    y: i32,
+}
+
+#[derive(Debug, Serialize)]
+struct Attributes {
+    id: i64,
+    name: String,
+    position: Vector,
+    additional_positions: Vec<Vector>,
+    state: String,
+    walkable: bool,
+    tick: String,
+    on_death: String,
+    owner: String,
+}
+
+#[derive(Debug, Serialize)]
+struct Entity {
+    #[serde(rename = "type")]
+    t: String,
+    attributes: Attributes,
+}
+
+#[derive(Debug, Serialize)]
+struct Scene {
+    entities: Vec<Entity>,
+}
+
 impl fmt::Display for Map {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut id = 0;
-        write!(f, "{{\n")?;
-        for y in 0..self.height {
-            for x in 0..self.width {
-                write!(f, "{{\"id\":{}, \"name\":\"{}\", \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
-                        id, self.floor[y as usize][x as usize], x, y)?;
+
+        let mut entities: Vec<Entity> = vec![];
+        for (x, y) in (0..self.height).zip(0..self.width) {
+            entities.push(Entity {
+                t: "Object".to_owned(),
+                attributes: Attributes {
+                    id: id,
+                    name: self.floor[y as usize][x as usize].to_string(),
+                    position: Vector {
+                        x: x as i32,
+                        y: y as i32,
+                    },
+                    additional_positions: vec![],
+                    state: "".to_owned(),
+                    walkable: true,
+                    tick: "".to_owned(),
+                    on_death: "".to_owned(),
+                    owner: "scene".to_owned(),
+                },
+            });
+            id += 1;
+            if let Some(object) = self.get_object(x, y) {
+                entities.push(Entity {
+                    t: "Object".to_owned(),
+                    attributes: Attributes {
+                        id: id,
+                        name: object.to_string(),
+                        position: Vector {
+                            x: x as i32,
+                            y: y as i32,
+                        },
+                        additional_positions: vec![],
+                        state: "".to_owned(),
+                        walkable: false,
+                        tick: "".to_owned(),
+                        on_death: "".to_owned(),
+                        owner: "scene".to_owned(),
+                    },
+                });
                 id += 1;
-                if let Some(obj) = self.get_object(x, y) {
-                    write!(f, "{{\"id\":{}, \"name\":\"{}\", \"position\":{{ \"x\":{}, \"y\":{} }}, \"additional_positions\":[], \"state\":\"\", \"walkable\":\"true\", \"tick\":\"\", \"on_death\":\"\" }},\n",
-                        id, obj, x, y)?;
-                    id += 1;
-                }
             }
         }
-        write!(f, "}}")?;
+
+        let serialized = Scene { entities: entities };
+        write!(f, "{}", serde_json::to_string(&serialized).unwrap())?;
         Ok(())
     }
 }
