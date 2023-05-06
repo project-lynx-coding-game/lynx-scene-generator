@@ -97,6 +97,8 @@ struct Attributes {
     tick: String,
     on_death: String,
     owner: String,
+    pickable: bool,
+    pushable: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -132,6 +134,8 @@ impl fmt::Display for Map {
                     tick: "".to_owned(),
                     on_death: "".to_owned(),
                     owner: "scene".to_owned(),
+                    pickable: false,
+                    pushable: false,
                 },
             });
             id += 1;
@@ -151,6 +155,8 @@ impl fmt::Display for Map {
                         tick: "".to_owned(),
                         on_death: "".to_owned(),
                         owner: "scene".to_owned(),
+                        pickable: false,
+                        pushable: false,
                     },
                 });
                 id += 1;
