@@ -118,7 +118,7 @@ impl fmt::Display for Map {
         let mut id = 0;
 
         let mut entities: Vec<Entity> = vec![];
-        for (x, y) in (0..self.height).zip(0..self.width) {
+        for (x, y) in (0..self.height).flat_map(|y| (0..self.width).clone().map(move |x| (x, y))) {
             entities.push(Entity {
                 t: "Object".to_owned(),
                 attributes: Attributes {
