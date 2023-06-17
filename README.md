@@ -23,6 +23,6 @@ The structure of POST `/get_scene` request is as follows:
 
 ## Example map
 
-![map](https://i.imgur.com/8PCqOY5.png)
+![map](https://i.imgur.com/rCVVB5w.png)
 
 

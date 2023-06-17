@@ -18,6 +18,7 @@ impl fmt::Display for Tile {
 #[derive(Clone, Copy, Debug, Serialize, PartialEq)]
 pub enum Object {
     Tree,
+    Rock,
     None,
 }
 
