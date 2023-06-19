@@ -94,12 +94,10 @@ struct Attributes {
     position: Vector,
     additional_positions: Vec<Vector>,
     state: String,
-    walkable: bool,
     tick: String,
     on_death: String,
     owner: String,
-    pickable: bool,
-    pushable: bool,
+    tags: Vec<String>
 }
 
 #[derive(Debug, Serialize)]
@@ -131,12 +129,10 @@ impl fmt::Display for Map {
                     },
                     additional_positions: vec![],
                     state: "".to_owned(),
-                    walkable: true,
                     tick: "".to_owned(),
                     on_death: "".to_owned(),
                     owner: "scene".to_owned(),
-                    pickable: false,
-                    pushable: false,
+                    tags: vec![String::from("walkable")]
                 },
             });
             id += 1;
@@ -152,12 +148,10 @@ impl fmt::Display for Map {
                         },
                         additional_positions: vec![],
                         state: "".to_owned(),
-                        walkable: false,
                         tick: "".to_owned(),
                         on_death: "".to_owned(),
                         owner: "scene".to_owned(),
-                        pickable: false,
-                        pushable: false,
+                        tags: vec![]
                     },
                 });
                 id += 1;
