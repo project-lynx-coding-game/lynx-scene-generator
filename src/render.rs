@@ -17,7 +17,13 @@ pub fn render_image(map: &Map, seed: &str) {
                 }
             },
             Some(Tile::Dirt) => Rgb([94, 66, 60]),
-            Some(Tile::Sand) => Rgb([231, 212, 148]),
+            Some(Tile::Sand) => {
+                if let Some(Object::Rock) = map.get_object(x, y){
+                    Rgb([165, 157, 134])
+                } else {
+                    Rgb([231, 212, 148])
+                }
+            },
             None => Rgb([0, 0, 0])
         };
     }

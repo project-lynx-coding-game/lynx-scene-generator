@@ -40,28 +40,28 @@ impl Generator {
 
         //TODO refactor common parts
         self.generate_floor(map);
-        self.generate_trees(map);
+        self.generate_objects_on_biome(map, Tile::Grass, Object::Tree, 0.5, 10);
+        self.generate_objects_on_biome(map, Tile::Sand, Object::Rock, 0.2, 20);
     }
 
-    fn generate_trees(&self, map: &mut Map) {
+    fn generate_objects_on_biome(&self, map: &mut Map, biome: Tile, object: Object, decay_factor: f32, blob_count_factor: u32) {
         //TODO ideally add generic flood fill generation
         // tried and its a lot of work, so not sure if worth it
-        const DECAY_FACTOR: f32 = 0.5;
 
-        let mut grass_biome = Vec::new();
+        let mut biome_tiles = Vec::new();
         for y in 0..map.height {
             for x in 0..map.width {
-                if map.get_tile(x, y).unwrap() == Tile::Grass {
-                    grass_biome.push(Point::new(x, y));
+                if map.get_tile(x, y).unwrap() == biome {
+                    biome_tiles.push(Point::new(x, y));
                 }
             }
         }
 
-        let blob_count: u32 = grass_biome.len() as u32 / 10;
+        let blob_count: u32 = biome_tiles.len() as u32 / blob_count_factor;
         let mut rng = ChaCha8Rng::seed_from_u64(self.seed);
 
         for _ in 0..blob_count {
-            let initial_position = &grass_biome[rng.gen_range(0..grass_biome.len())];
+            let initial_position = &biome_tiles[rng.gen_range(0..biome_tiles.len())];
             let mut queue = vec![initial_position.clone()];
             let mut visited = vec![initial_position.clone()];
 
@@ -78,7 +78,7 @@ impl Generator {
                 let point = queue[index].clone();
                 queue.remove(index);
 
-                map.set_object(point.x % map.width, point.y % map.height, Object::Tree);
+                map.set_object(point.x % map.width, point.y % map.height, object);
 
                 // chance for neighbours
                 if (rng.gen_range(0..=100) as f32) > chance {
@@ -88,19 +88,19 @@ impl Generator {
                 //get neighbours
                 let mut neighbours = Vec::new();
 
-                if let Some(Tile::Grass) = map.get_tile(point.x + 1, point.y) {
+                if map.get_tile(point.x + 1, point.y) == Some(biome) {
                     neighbours.push(Point::new(point.x + 1, point.y));
                 }
                 if point.x > 0 {
-                    if let Some(Tile::Grass) = map.get_tile(point.x - 1, point.y) {
+                    if map.get_tile(point.x - 1, point.y) == Some(biome) {
                         neighbours.push(Point::new(point.x - 1, point.y));
                     }
                 }
-                if let Some(Tile::Grass) = map.get_tile(point.x, point.y + 1) {
+                if map.get_tile(point.x, point.y + 1) == Some(biome) {
                     neighbours.push(Point::new(point.x, point.y + 1));
                 }
                 if point.y > 0 {
-                    if let Some(Tile::Grass) = map.get_tile(point.x, point.y - 1) {
+                    if map.get_tile(point.x, point.y - 1) == Some(biome) {
                         neighbours.push(Point::new(point.x, point.y - 1));
                     }
                 }
@@ -114,7 +114,7 @@ impl Generator {
                     queue.push(neighbour.clone());
                 }
 
-                chance *= DECAY_FACTOR;
+                chance *= decay_factor;
             }
         }
     }
