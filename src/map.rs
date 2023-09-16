@@ -132,7 +132,7 @@ impl fmt::Display for Map {
                     tick: "".to_owned(),
                     on_death: "".to_owned(),
                     owner: "scene".to_owned(),
-                    tags: vec![String::from("walkable")]
+                    tags: vec![String::from("tile")]
                 },
             });
             id += 1;
